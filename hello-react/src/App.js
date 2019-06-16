@@ -2,18 +2,13 @@ import React from "react";
 import List from "./List";
 
 class App extends React.Component {
-    constructor() {
-        super();
+    state = {
+        data: ['Bob', 'Alice', 'Tom']
+    };
 
-        this.state = {
-            data: ['Bob', 'Alice', 'Tom']
-        };
+    input = React.createRef();
 
-        this.input = React.createRef();
-        this.add = this.add.bind(this);
-    }
-
-    add() {
+    add = () => {
         this.setState({
             data: [...this.state.data, this.input.current.value],
         });

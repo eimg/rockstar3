@@ -1,11 +1,9 @@
 import React from "react";
 
-class Item extends React.Component {
-    render() {
-        return (
-            <li>{this.props.name}</li>
-        )
-    }
+const Item = props => {
+    return (
+        <li>{props.name}</li>
+    );
 }
 
 export default Item;
