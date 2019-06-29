@@ -51,12 +51,20 @@ class App extends React.Component {
         });
     }
 
+    clear = () => {
+        this.setState({
+            tasks: this.state.tasks.filter(task => task.status === 0)
+        });
+    }
+
     render() {
         return (
             <div>
-                <Header count={this.state.tasks.filter(task => {
-                    return task.status === 0;
-                }).length} />
+                <Header
+                    clear={this.clear}
+                    count={this.state.tasks.filter(task => {
+                        return task.status === 0;
+                    }).length} />
 
                 <AddTask add={this.add} />
 

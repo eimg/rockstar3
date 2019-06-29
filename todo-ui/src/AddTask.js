@@ -2,15 +2,16 @@ import React from "react";
 import Paper from "@material-ui/core/Paper";
 import InputBase from "@material-ui/core/InputBase";
 import IconButton from "@material-ui/core/IconButton";
-import SearchIcon from "@material-ui/icons/Search";
+import AddIcon from "@material-ui/icons/Add";
 
 const styles = {
     input: {
-        flex: 1,
-        paddingLeft: 10
+        flex: 1
     },
     paper: {
-        display: 'flex'
+        display: 'flex',
+        paddingLeft: 15,
+        paddingRight: 15
     }
 }
 
@@ -25,7 +26,7 @@ const AddTask = props => {
                 input.current.value = "";
                 input.current.focus();
             }}>
-                <SearchIcon />
+                <AddIcon />
             </IconButton>
         </Paper>
     );
