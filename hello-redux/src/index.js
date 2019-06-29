@@ -4,7 +4,31 @@ import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 
-ReactDOM.render(<App />, document.getElementById('root'));
+import { createStore } from 'redux';
+import { Provider } from 'react-redux';
+
+var store = createStore(function(state = [], action) {
+    switch(action.type) {
+        case 'add':
+            return [...state, action.name];
+            break;
+        case 'remove':
+            return state.filter(i => i != action.name);
+            break;
+        default:
+            return state;
+    }
+});
+
+store.dispatch({ type: 'add', name: 'Bob' });
+store.dispatch({ type: 'add', name: 'Alice' });
+
+ReactDOM.render(
+    <Provider store={store}>
+        <App />
+    </Provider>,
+    document.getElementById('root')
+);
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
