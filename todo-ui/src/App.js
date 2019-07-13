@@ -4,56 +4,98 @@ import Header from "./Header";
 import AddTask from "./AddTask";
 
 class App extends React.Component {
-    autoid = 3;
+    api = 'http://localhost:8000/tasks';
 
     state = {
-        tasks: [
-            { '_id': 1, 'subject': 'Egg', 'status': 0 },
-            { '_id': 2, 'subject': 'Bread', 'status': 1 },
-            { '_id': 3, 'subject': 'Butter', 'status': 0 },
-        ]
+        tasks: []
     };
 
+    componentWillMount() {
+        fetch(this.api).then(res => {
+            return res.json();
+        }).then(json => {
+            this.setState({
+                tasks: json
+            });
+        });
+    }
+
     add = (subject) => {
-        this.setState({
-            tasks: [
-                ...this.state.tasks,
-                {
-                    '_id': ++this.autoid,
-                    'subject': subject,
-                    'status': 0
-                }
-            ]
+        fetch(this.api, {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ subject })
+        }).then(res => {
+            return res.json();
+        }).then(json => {
+            this.setState({
+                tasks: [
+                    ...this.state.tasks,
+                    json
+                ]
+            });
         });
     }
 
     remove = _id => {
-        this.setState({
-            tasks: this.state.tasks.filter(task => task._id !== _id)
+        fetch(`${this.api}/${_id}`, {
+            method: 'delete',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).then(res => {
+            this.setState({
+                tasks: this.state.tasks.filter(task => task._id !== _id)
+            });
         });
     }
 
     done = _id => {
-        this.setState({
-            tasks: this.state.tasks.map(task => {
-                if(task._id === _id) task.status = 1;
-                return task;
-            })
+        fetch(`${this.api}/${_id}`, {
+            method: 'put',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ status: 1 })
+        }).then(res => {
+            this.setState({
+                tasks: this.state.tasks.map(task => {
+                    if(task._id === _id) task.status = 1;
+                    return task;
+                })
+            });
         });
     }
 
     undo = _id => {
-        this.setState({
-            tasks: this.state.tasks.map(task => {
-                if(task._id === _id) task.status = 0;
-                return task;
-            })
+        fetch(`${this.api}/${_id}`, {
+            method: 'put',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ status: 0 })
+        }).then(res => {
+            this.setState({
+                tasks: this.state.tasks.map(task => {
+                    if(task._id === _id) task.status = 0;
+                    return task;
+                })
+            });
         });
     }
 
     clear = () => {
-        this.setState({
-            tasks: this.state.tasks.filter(task => task.status === 0)
+        fetch(this.api, {
+            method: 'delete',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).then(res => {
+            this.setState({
+                tasks: this.state.tasks.filter(task => task.status === 0)
+            });
         });
     }
 
