@@ -6,43 +6,104 @@ import {
     FlatList,
     TextInput,
     Button,
+    TouchableOpacity,
 } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 
 const styles = StyleSheet.create({
     container: {
-        marginTop: 40
+        paddingTop: 20,
+        backgroundColor: '#6200ee',
+    },
+    header: {
+        padding: 20,
+        flexDirection: 'row',
+    },
+    title: {
+        flex: 1,
+        fontSize: 28,
+        fontWeight: 'bold',
+        color: '#fff'
     },
     item: {
         padding: 20,
-        borderBottomWidth: 1
+        borderBottomWidth: 1,
+        flexDirection: 'row',
     },
     itemText: {
-        fontSize: 23
+        marginLeft: 20,
+        fontSize: 23,
+        color: '#fff',
+        flex: 1,
+    },
+    itemTextDone: {
+        color: '#ccc',
+    },
+    add: {
+        flexDirection: 'row',
+        backgroundColor: '#a567ff',
+        paddingLeft: 20,
+        paddingRight: 20,
     },
     input: {
         padding: 10,
         fontSize: 21,
         height: 40,
         borderColor: 'gray',
-        borderWidth: 1
+        borderWidth: 1,
+        flex: 1,
+        color: '#fff',
+    },
+    done: {
+        backgroundColor: '#4c00b8',
     }
 });
 
 class App extends React.Component {
+    api = 'http://192.168.100.6:8000/tasks';
     state = {
-        data: [
-            { _id: '1', subject: 'Milk' },
-            { _id: '2', subject: 'Milo'},
-        ]
+        data: []
+    }
+
+    componentWillMount() {
+        fetch(this.api).then(res => res.json()).then(json => {
+            this.setState({
+                data: json
+            })
+        });
     }
 
     _keyExtractor = (item, index) => item._id;
 
-    _renderItem = ({item}) => (
+    _renderTask = ({item}) => (
         <View style={styles.item}>
+            <TouchableOpacity onPress={this.add}>
+                <MaterialIcons
+                    name='check-box-outline-blank' size={32} color='white' />
+            </TouchableOpacity>
             <Text style={styles.itemText}>
                 {item.subject}
             </Text>
+            <TouchableOpacity onPress={this.add}>
+                <MaterialIcons
+                    name='delete' size={32} color='#a567ff' />
+            </TouchableOpacity>
+        </View>
+    );
+
+    _renderDone = ({item}) => (
+        <View style={{...styles.item, ...styles.done}}>
+            <TouchableOpacity onPress={this.add}>
+                <MaterialIcons
+                    name='check-box' size={32} color='white' />
+            </TouchableOpacity>
+            <Text style={{...styles.itemText, ...styles.itemTextDone}}>
+                {item.subject}
+            </Text>
+            <TouchableOpacity onPress={this.add}>
+                <MaterialIcons
+                    name='delete' size={32} color='#a567ff' />
+            </TouchableOpacity>
         </View>
     );
 
@@ -59,19 +120,35 @@ class App extends React.Component {
     render() {
         return (
             <View style={styles.container}>
-                <View>
+                <View style={styles.header}>
+                    <Text style={styles.title}>
+                        Native Todo
+                    </Text>
+                    <TouchableOpacity onPress={this.add}>
+                        <MaterialIcons name='clear-all' size={32} color='white' />
+                    </TouchableOpacity>
+                </View>
+                <View style={styles.add}>
                     <TextInput
                         style={styles.input}
                         onChangeText={(text) => this.setState({ text })}
                         value={this.state.text}
                     />
-                    <Button onPress={this.add} title="Add" />
+                    <TouchableOpacity onPress={this.add}>
+                        <MaterialIcons name='add' size={32} color='white' />
+                    </TouchableOpacity>
                 </View>
 
                 <FlatList
-                    data={this.state.data}
+                    data={this.state.data.filter(item => item.status === 0)}
                     keyExtractor={this._keyExtractor}
-                    renderItem={this._renderItem}
+                    renderItem={this._renderTask}
+                />
+
+                <FlatList
+                    data={this.state.data.filter(item => item.status === 1)}
+                    keyExtractor={this._keyExtractor}
+                    renderItem={this._renderDone}
                 />
             </View>
         )
