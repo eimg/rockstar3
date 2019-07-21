@@ -7,11 +7,14 @@ import {
     TextInput,
     Button,
     TouchableOpacity,
+    ScrollView,
+    AppRegistry,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 
 const styles = StyleSheet.create({
     container: {
+        flex: 1,
         paddingTop: 20,
         backgroundColor: '#6200ee',
     },
@@ -77,14 +80,18 @@ class App extends React.Component {
 
     _renderTask = ({item}) => (
         <View style={styles.item}>
-            <TouchableOpacity onPress={this.add}>
+            <TouchableOpacity onPress={() => {
+                this.done(item._id);
+            }}>
                 <MaterialIcons
                     name='check-box-outline-blank' size={32} color='white' />
             </TouchableOpacity>
             <Text style={styles.itemText}>
                 {item.subject}
             </Text>
-            <TouchableOpacity onPress={this.add}>
+            <TouchableOpacity onPress={() => {
+                this.remove(item._id);
+            }}>
                 <MaterialIcons
                     name='delete' size={32} color='#a567ff' />
             </TouchableOpacity>
@@ -93,14 +100,18 @@ class App extends React.Component {
 
     _renderDone = ({item}) => (
         <View style={{...styles.item, ...styles.done}}>
-            <TouchableOpacity onPress={this.add}>
+            <TouchableOpacity onPress={() => {
+                this.undo(item._id);
+            }}>
                 <MaterialIcons
                     name='check-box' size={32} color='white' />
             </TouchableOpacity>
             <Text style={{...styles.itemText, ...styles.itemTextDone}}>
                 {item.subject}
             </Text>
-            <TouchableOpacity onPress={this.add}>
+            <TouchableOpacity onPress={() => {
+                this.remove(item._id);
+            }}>
                 <MaterialIcons
                     name='delete' size={32} color='#a567ff' />
             </TouchableOpacity>
@@ -108,13 +119,82 @@ class App extends React.Component {
     );
 
     add = () => {
-        this.setState({
-            data: [
-                ...this.state.data,
-                { _id: "3", subject: this.state.text }
-            ],
-            text: ''
-        })
+        fetch(this.api, {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                subject: this.state.text
+            })
+        }).then(res => {
+            return res.json();
+        }).then(json => {
+            this.setState({
+                data: [ ...this.state.data, json ],
+                text: ''
+            });
+        });
+    }
+
+    remove = (_id) => {
+        fetch(`${this.api}/${_id}`, {
+            method: 'delete'
+        }).then(res => {
+            return res.json();
+        }).then(json => {
+            this.setState({
+                data: this.state.data.filter(item => item._id !== _id)
+            });
+        });
+    }
+
+    done = (_id) => {
+        fetch(`${this.api}/${_id}`, {
+            method: 'put',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ status: 1 })
+        }).then(res => {
+            return res.json();
+        }).then(json => {
+            this.setState({
+                data: this.state.data.map(item => {
+                    if(item._id === _id) item.status = 1;
+                    return item;
+                })
+            });
+        });
+    }
+
+    undo = (_id) => {
+        fetch(`${this.api}/${_id}`, {
+            method: 'put',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ status: 0 })
+        }).then(res => {
+            return res.json();
+        }).then(json => {
+            this.setState({
+                data: this.state.data.map(item => {
+                    if(item._id === _id) item.status = 0;
+                    return item;
+                })
+            });
+        });
+    }
+
+    clear = () => {
+        fetch(this.api, {
+            method: 'delete'
+        }).then(() => {
+            this.setState({
+                data: this.state.data.filter(item => item.status === 0)
+            });
+        });
     }
 
     render() {
@@ -124,7 +204,7 @@ class App extends React.Component {
                     <Text style={styles.title}>
                         Native Todo
                     </Text>
-                    <TouchableOpacity onPress={this.add}>
+                    <TouchableOpacity onPress={this.clear}>
                         <MaterialIcons name='clear-all' size={32} color='white' />
                     </TouchableOpacity>
                 </View>
@@ -139,20 +219,23 @@ class App extends React.Component {
                     </TouchableOpacity>
                 </View>
 
-                <FlatList
-                    data={this.state.data.filter(item => item.status === 0)}
-                    keyExtractor={this._keyExtractor}
-                    renderItem={this._renderTask}
-                />
+                <ScrollView>
+                    <FlatList
+                        data={this.state.data.filter(item => item.status === 0)}
+                        keyExtractor={this._keyExtractor}
+                        renderItem={this._renderTask}
+                    />
 
-                <FlatList
-                    data={this.state.data.filter(item => item.status === 1)}
-                    keyExtractor={this._keyExtractor}
-                    renderItem={this._renderDone}
-                />
+                    <FlatList
+                        data={this.state.data.filter(item => item.status === 1)}
+                        keyExtractor={this._keyExtractor}
+                        renderItem={this._renderDone}
+                    />
+                </ScrollView>
             </View>
         )
     }
 }
 
 export default App;
+AppRegistry.registerComponent('App', () => App);
