@@ -8,6 +8,7 @@ import {
     Drawer,
     List,
     ListItem,
+    ListItemIcon,
     ListItemText,
     Card,
     CardContent,
@@ -15,6 +16,11 @@ import {
 
 import {
     Menu as MenuIcon,
+    Home as HomeIcon,
+    Face as FaceIcon,
+    Dns as DnsIcon,
+    Label as LabelIcon,
+    ArrowBack as ArrowBackIcon,
 } from '@material-ui/icons';
 
 import {
@@ -31,6 +37,12 @@ const styles = {
     },
     content: {
         padding: 20
+    },
+    link: {
+        display: 'block',
+        textDecoration: 'none',
+        color: '#333',
+        width: '100%',
     }
 }
 
@@ -40,11 +52,13 @@ class App extends React.Component {
             { id: 1, name: 'Foo', des: 'Foo description' },
             { id: 2, name: 'Bar', des: 'Bar description' },
         ],
-        drawer: false
+        drawer: false,
+        back: false,
     };
 
     openDrawer = () => this.setState({drawer: true});
     closeDrawer = () => this.setState({drawer: false});
+    back = () => this.setState({back: true});
 
     render() {
         return (
@@ -54,33 +68,52 @@ class App extends React.Component {
                         <div style={styles.header}></div>
                         <List>
                             <ListItem button onClick={this.closeDrawer}>
-                                <Link to='/'>Home</Link>
+                                <ListItemIcon>
+                                    <HomeIcon />
+                                </ListItemIcon>
+                                <Link style={styles.link} to='/'>Home</Link>
                             </ListItem>
                             <ListItem button onClick={this.closeDrawer}>
-                                <Link to='/user'>User</Link>
+                                <ListItemIcon>
+                                    <FaceIcon />
+                                </ListItemIcon>
+                                <Link style={styles.link} to='/user'>User</Link>
                             </ListItem>
                             <ListItem button onClick={this.closeDrawer}>
-                                <Link to='/items' onClick={this.hideDrawer}>Items</Link>
+                                <ListItemIcon>
+                                    <DnsIcon />
+                                </ListItemIcon>
+                                <Link style={styles.link} to='/items' onClick={this.hideDrawer}>Items</Link>
                             </ListItem>
                         </List>
                     </Drawer>
 
                     <AppBar position="static">
                         <Toolbar>
-                            <IconButton edge="start" color="inherit" onClick={this.openDrawer}>
-                                <MenuIcon />
-                            </IconButton>
+                            {this.state.back ?
+                                <Link to='/items' onClick={() => {
+                                    this.setState({back: false})
+                                }}>
+                                    <IconButton edge="start" color="inherit">
+                                        <ArrowBackIcon style={{color: 'white'}} />
+                                    </IconButton>
+                                </Link>
+                            :
+                                <IconButton edge="start" color="inherit" onClick={this.openDrawer}>
+                                    <MenuIcon />
+                                </IconButton>
+                            }
                             <Typography variant="h6" color="inherit">
                                 My App
                             </Typography>
                         </Toolbar>
                     </AppBar>
 
-                    <div style={styles.content}>
+                    <div>
                         <Route exact path="/" component={Home} />
                         <Route path="/user" component={User} />
                         <Route path="/items" render={() => (
-                            <Items items={this.state.items}/>
+                            <Items items={this.state.items} back={this.back} />
                         )} />
                         <Route path="/view/:id" render={props => (
                             <View item={this.state.items.find(item => {
@@ -94,14 +127,17 @@ class App extends React.Component {
     }
 }
 
-const Home = props => <h1>Home</h1>;
-const User = props => <h2>User</h2>;
+const Home = props => <h1 style={styles.content}>Home</h1>;
+const User = props => <h2 style={styles.content}>User</h2>;
 const Items = props => (
     <List>
         {props.items.map(item => {
             return (
-                <ListItem key={item.id} button>
-                    <Link to={`/view/${item.id}`}>
+                <ListItem key={item.id} button onClick={props.back}>
+                    <ListItemIcon>
+                        <LabelIcon />
+                    </ListItemIcon>
+                    <Link style={styles.link} to={`/view/${item.id}`}>
                         <ListItemText primary={item.name}></ListItemText>
                     </Link>
                 </ListItem>
@@ -110,16 +146,18 @@ const Items = props => (
     </List>
 );
 const View = props => (
-    <Card>
-        <CardContent>
-            <Typography variant="h5">
-                {props.item.id} - {props.item.name}
-            </Typography>
-            <Typography variant="body">
-                {props.item.des}
-            </Typography>
-        </CardContent>
-    </Card>
+    <div style={styles.content}>
+        <Card>
+            <CardContent>
+                <Typography variant="h5">
+                    {props.item.id} - {props.item.name}
+                </Typography>
+                <Typography variant="body">
+                    {props.item.des}
+                </Typography>
+            </CardContent>
+        </Card>
+    </div>
 );
 
 export default App;
