@@ -91,6 +91,7 @@ const ReduxApp = connect(state => {
         done: _id => dispatch({ type: 'DONE', _id }),
         undo: _id => dispatch({ type: 'UNDO', _id }),
         clear: _id => dispatch({ type: 'CLEAR', _id }),
+        set: tasks => dispatch({ type: 'SET', tasks }),
     }
 })(App);
 

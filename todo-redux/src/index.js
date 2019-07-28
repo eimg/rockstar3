@@ -8,6 +8,10 @@ import { Provider } from 'react-redux';
 
 let store = createStore((state = { tasks: [] }, action) => {
     switch (action.type) {
+        case 'SET':
+            return {
+                tasks: action.tasks
+            }
         case 'ADD':
             return {
                 tasks: [ ...state.tasks, action.task ]
@@ -45,14 +49,8 @@ let store = createStore((state = { tasks: [] }, action) => {
     }
 });
 
-store.dispatch({
-    type: 'ADD',
-    task: { '_id': 1, 'subject': 'Egg', 'status': 0 }
-});
-
-store.dispatch({
-    type: 'ADD',
-    task: { '_id': 2, 'subject': 'Milk', 'status': 1 }
+fetch('http://localhost:8000/tasks').then(res => res.json()).then(json => {
+    store.dispatch({ type: 'SET', tasks: json });
 });
 
 ReactDOM.render(
