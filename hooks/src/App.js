@@ -1,4 +1,5 @@
 import React from 'react';
+import Header from './Header';
 
 const App = props => {
     let api = 'http://localhost:8000/tasks';
@@ -78,14 +79,14 @@ const App = props => {
 
     return (
         <div>
-            <h1>React Hooks</h1>
+            <Header />
             <ul>
                 {tasks.map(task => {
                     return (
                         <li key={task._id}>
                             <input type="checkbox" onChange={check(task._id)} />
                             {task.subject}
-                            <a href='#' onClick={remove(task._id)}>&times;</a>
+                            <a href='#/' onClick={remove(task._id)}>&times;</a>
                         </li>
                     )
                 })}
@@ -97,7 +98,7 @@ const App = props => {
                         <li key={task._id}>
                             <input type="checkbox" checked onChange={undo(task._id)} />
                             {task.subject}
-                            <a href='#' onClick={remove(task._id)}>&times;</a>
+                            <a href='#/' onClick={remove(task._id)}>&times;</a>
                         </li>
                     )
                 })}
@@ -106,7 +107,7 @@ const App = props => {
             <input type="text" ref={input} />
             <button onClick={add}>+</button>
 
-            <a href='#' onClick={clear}>Clear all done</a>
+            <a href='#/' onClick={clear}>Clear all done</a>
         </div>
     );
 }
