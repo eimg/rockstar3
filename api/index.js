@@ -17,6 +17,20 @@ var md5 = require('md5');
 var jwt = require('jsonwebtoken');
 var app_key = 'secret';
 
+var passport = require('passport');
+
+var JwtStrategy = require('passport-jwt').Strategy;
+var ExtractJwt = require('passport-jwt').ExtractJwt;
+
+var opts = {
+    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+    secretOrKey: app_key
+};
+
+passport.use(new JwtStrategy(opts, function(decoded, done) {
+    return done(null, true);
+}));
+
 app.get('/login', [
     check('email').isEmail(),
     check('password').isLength(3)
@@ -35,24 +49,14 @@ app.get('/login', [
             var token = jwt.sign(data[0], app_key);
             return res.json({ token: token });
         }
+
         return res.status(403).json({msg: 'invalide email/password'});
     });
 });
 
 app.get('/tasks', function(req, res) {
-    var token = req.query.token;
-    if(!token) {
-        return res.status(403).json({ msg: 'empty token' });
-    }
-
-    jwt.verify(token, app_key, function(err, user) {
-        if(err) {
-            res.status(403).json({msg: 'invalid token'})
-        } else {
-            db.tasks.find(function(err, data) {
-                res.json(data);
-            });
-        }
+    db.tasks.find(function(err, data) {
+        res.json(data);
     });
 });
 
