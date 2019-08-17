@@ -4,7 +4,7 @@ import Header from "./Header";
 import AddTask from "./AddTask";
 
 class App extends React.Component {
-    api = 'http://localhost:8000/tasks';
+    api = 'http://134.209.102.62/tasks';
 
     state = {
         tasks: []

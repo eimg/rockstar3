@@ -1,5 +1,6 @@
 import React from "react";
 import List from "./List";
+import Header from "./Header";
 
 class App extends React.Component {
     state = {
@@ -17,6 +18,7 @@ class App extends React.Component {
     render() {
         return (
             <div>
+                <Header />
                 <List data={this.state.data} />
                 <input type="text" ref={this.input} />
                 <button onClick={this.add}>+</button>
